@@ -26,7 +26,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Typing :: Typed",
 ]
-dependencies = ["matplotlib", "numpy"]
+dependencies = ["matplotlib", "numpy", "pandas"]
 
 optional-dependencies.dev = [
   "coverage",
@@ -110,9 +110,7 @@ log_level = "WARN"
 log_cli = "true"
 testpaths = ["tests"]
 xfail_strict = true
-addopts = [
-  "--import-mode=importlib",
-]
+addopts = ["--import-mode=importlib"]
 
 [tool.coverage.run]
 source = ["matplotlib_sankey"]
