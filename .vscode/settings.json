@@ -16,8 +16,16 @@
         "editor.formatOnSaveMode": "file",
         "editor.defaultFormatter": "charliermarsh.ruff"
     },
-    "python.analysis.extraPaths": ["matplotlib_radar", "test", "examples"],
-    "python.analysis.exclude": ["**/venv/**", "**/__pycache__/**"],
+    "python.analysis.extraPaths": [
+        "matplotlib_sankey",
+        "tests",
+        "examples",
+        "docs",
+    ],
+    "python.analysis.exclude": [
+        "**/venv/**",
+        "**/__pycache__/**"
+    ],
     "python.defaultInterpreterPath": "venv/bin/python",
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
@@ -42,6 +50,7 @@
         "**/node_modules": true,
         "**/.ruff_cache": true,
         "**/.pytest_cache": true,
-        "**/__pycache__/**": true
+        "**/__pycache__/**": true,
+        "**/venv/**": true,
     }
 }
