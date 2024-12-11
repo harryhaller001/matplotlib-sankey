@@ -56,3 +56,6 @@ freeze: ## Freeze dependencies
 
 typing: ## Check typing of code with mypy
 	python3 -m mypy matplotlib_sankey/*.py
+
+
+check: install-dev freeze format typing pytest build ## Running all checks
