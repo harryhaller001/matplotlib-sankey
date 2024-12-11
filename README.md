@@ -25,3 +25,8 @@ source venv/bin/activate
 # Install dev dependencies
 make install-dev
 ```
+
+### TODO
+
+* Support for colormaps
+* Add ribbons with multiple destinations/splitting ribbons, implement transition matrix as input parameter
