@@ -1,5 +1,6 @@
-from matplotlib_sankey import sankey_simple
 import numpy as np
+
+from matplotlib_sankey import sankey_simple
 
 
 def test_sankey_simple_plot():

@@ -1,6 +1,7 @@
-from matplotlib_sankey._utils import _generate_cmap
-from matplotlib.colors import Colormap
 from matplotlib import colormaps
+from matplotlib.colors import Colormap
+
+from matplotlib_sankey._utils import _generate_cmap
 
 
 def test_utils_cmap() -> None:

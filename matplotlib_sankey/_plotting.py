@@ -15,12 +15,12 @@ from ._utils import _clean_axis, _generate_cmap
 def sankey_simple(
     data: NDArray,
     colors: AcceptedColors = "tab10",
-    spacing: float = 0.2,
+    spacing: float = 0.0,
     frameon: bool = True,
     figsize: Tuple[int, int] = (5, 5),
     curve_type: CurveType = "curve4",
     alpha: float = 0.5,
-    tight_layout: bool = False,
+    tight_layout: bool = True,
     max_scale: bool = False,
     title: Optional[str] = None,
     column_width: int = 1,
@@ -31,7 +31,7 @@ def sankey_simple(
     Args:
         data (numpy.ndarray): Input data.
         colors (Union[NDArray, List[str]]): List of colors. Defaults to `tab10`.
-        spacing (float, optional): Spacing between column and ribbon patches. Defaults to `0.2`.
+        spacing (float, optional): Spacing between column and ribbon patches. Defaults to `0.0`.
         frameon (bool, optional): Draw frame. Defaults to `True`.
         figsize (Tuple[int, int]): Size of figure. Defaults to `(5, 5)`.
         curve_type (Literal["curve3", "curve4", "line"], optional): Curve type ofo ribbon. Defaults to `"curve4"`.
