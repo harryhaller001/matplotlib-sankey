@@ -30,3 +30,5 @@ make install-dev
 
 * Support for colormaps
 * Add ribbons with multiple destinations/splitting ribbons, implement transition matrix as input parameter
+* annotate columns and ribbons
+* add parameter for ribbon colors
