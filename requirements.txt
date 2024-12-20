@@ -28,7 +28,7 @@ fastjsonschema==2.21.1
 filelock==3.16.1
 flit==3.10.1
 flit_core==3.10.1
-fonttools==4.55.3
+fonttools==4.55.2
 furo==2024.8.6
 identify==2.6.3
 idna==3.10
