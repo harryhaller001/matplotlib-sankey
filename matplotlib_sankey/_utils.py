@@ -8,13 +8,21 @@ from matplotlib.colors import Colormap, ListedColormap
 from ._types import AcceptedColors
 
 
-def _clean_axis(_ax: Axes, frameon: bool = True) -> Axes:
+def _clean_axis(
+    _ax: Axes,
+    frameon: bool = True,
+    reset_x_ticks: bool = True,
+    reset_y_ticks: bool = True,
+) -> Axes:
     """Helper function to clean axes."""
-    _ax.set_yticklabels([])
-    _ax.set_xticklabels([])
-    _ax.set_ylim(0, 1)
-    _ax.set_yticks([])
-    _ax.set_xticks([])
+    if reset_x_ticks is True:
+        _ax.set_xticklabels([])
+        _ax.set_xticks([])
+
+    if reset_y_ticks is True:
+        _ax.set_yticklabels([])
+        _ax.set_yticks([])
+        # _ax.set_ylim(0, 1)
 
     if frameon is False:
         # Despine
