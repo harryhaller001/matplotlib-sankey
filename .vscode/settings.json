@@ -38,6 +38,7 @@
         "**/venv/**": true,
         "**/node_modules": true,
         "**/.ruff_cache": true,
+        "**/.mypy_cache": true,
         "**/.pytest_cache": true
     },
     "files.exclude": {
@@ -48,9 +49,10 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
         "**/node_modules": true,
+        "**/.mypy_cache": true,
         "**/.ruff_cache": true,
         "**/.pytest_cache": true,
         "**/__pycache__/**": true,
-        "**/venv/**": true,
+        // "**/venv/**": true,
     },
 }
