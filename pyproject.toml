@@ -33,25 +33,23 @@ dynamic = [ "version" ]
 dependencies = [ "matplotlib", "numpy" ]
 
 optional-dependencies.docs = [
-    "docutils>=0.8,!=0.18.*,!=0.19.*",
-    "furo",
+    # "docutils>=0.8,!=0.18.*,!=0.19.*",
     "ipykernel",
     "ipython",
     "ipywidgets",
     "myst-parser",
     "nbsphinx",
     "networkx[default]",
-    "pandoc",
+    # "pandoc",
     "sphinx>=4",
     "sphinx-autoapi",
     "sphinx-autodoc-typehints",
     "sphinx-book-theme>=1",
-    "sphinx-copybutton",
-    "sphinx-design",
-    "sphinx-rtd-theme",
-    "sphinx-tabs",
-    "sphinxcontrib-bibtex>=1",
-    "sphinxext-opengraph",
+    # "sphinx-copybutton",
+    # "sphinx-design",
+    # "sphinx-tabs",
+    # "sphinxcontrib-bibtex>=1",
+    # "sphinxext-opengraph",
 ]
 optional-dependencies.test = [
     "coverage",
@@ -59,6 +57,7 @@ optional-dependencies.test = [
     "mypy",
     "pre-commit",
     "pytest",
+    "ruff",
     "setuptools",
     "twine>=4.0.2",
 ]

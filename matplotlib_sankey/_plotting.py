@@ -53,9 +53,9 @@ def sankey(
         matplitlib.Axes
 
     """
-    assert (
-        rel_column_width > 0 and rel_column_width < 1
-    ), "Value for parameter 'rel_column_width' must be between 0 and 1."
+    assert rel_column_width > 0 and rel_column_width < 1, (
+        "Value for parameter 'rel_column_width' must be between 0 and 1."
+    )
 
     if ax is None:
         _, ax = plt.subplots(figsize=figsize, frameon=frameon)
