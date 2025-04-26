@@ -32,23 +32,16 @@ dynamic = [ "version" ]
 
 dependencies = [ "matplotlib", "numpy" ]
 
-optional-dependencies.dev = [
-    "coverage",
+optional-dependencies.docs = [
     "docutils>=0.8,!=0.18.*,!=0.19.*",
-    "flit",
     "furo",
     "ipykernel",
     "ipython",
     "ipywidgets",
-    "isort",
-    "mypy",
     "myst-parser",
     "nbsphinx",
     "networkx[default]",
     "pandoc",
-    "pre-commit",
-    "pytest",
-    "setuptools",
     "sphinx>=4",
     "sphinx-autoapi",
     "sphinx-autodoc-typehints",
@@ -59,8 +52,17 @@ optional-dependencies.dev = [
     "sphinx-tabs",
     "sphinxcontrib-bibtex>=1",
     "sphinxext-opengraph",
+]
+optional-dependencies.test = [
+    "coverage",
+    "flit",
+    "mypy",
+    "pre-commit",
+    "pytest",
+    "setuptools",
     "twine>=4.0.2",
 ]
+
 # https://docs.pypi.org/project_metadata/#project-urls
 urls.Documentation = "https://github.com/harryhaller001/matplotlib-sankey"
 urls.Homepage = "https://github.com/harryhaller001/matplotlib-sankey"

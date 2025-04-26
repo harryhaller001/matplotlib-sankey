@@ -32,7 +32,7 @@ def sankey(
     ax.set_xlim(-1 * (rel_column_width / 2), (ncols - 1) + (rel_column_width / 2))
 
     # Prepare data
-    column_weights = [None] * ncols
+    column_weights: list[dict[int | str, int | float]] = [{} for _ in range(ncols)]
 
     cmap = _generate_cmap(cmap, 20)
 
@@ -57,12 +57,12 @@ def sankey(
                     )
 
     # Plot rectangles
-    column_rects = [None] * ncols
+    column_rects: list[dict[int | str, tuple[float, float, float, float]]] = [{} for _ in range(ncols)]
     rect_num = 0
 
     for frame_index in range(ncols):
         column_total_weight = sum(column_weights[frame_index].values())
-        column_prev_weight = 0
+        column_prev_weight = 0.0
 
         column_n_spacing = len(column_weights[frame_index].values()) - 1
 
@@ -108,20 +108,20 @@ def sankey(
     # Plot ribbons
 
     for frame_index in range(ncols - 1):
-        target_ribbon_offset = {}
+        target_ribbon_offset: dict[int | str, int | float] = {}
 
         for column_key in column_weights[frame_index].keys():
             # print(column_key)
             # Source rect dimensions
-            rect_x, rect_y, rect_width, rect_height = column_rects[frame_index][column_key]
+            rect_x, rect_y, _, rect_height = column_rects[frame_index][column_key]
 
             # Get all connection targets
-            column_targets = {}
+            column_targets: dict[int | str, float | int] = {}
             for source, target, connection_weights in data[frame_index]:
                 if source == column_key:
                     column_targets[target] = connection_weights
 
-            ribbon_offset = 0
+            ribbon_offset: float = 0.0
 
             for target_index, ribbon_weight in column_targets.items():
                 # Start coords
@@ -149,24 +149,44 @@ def sankey(
 
                 poly: PathPatch
 
-                ribbon_kwargs = {
-                    "x_start": frame_index + (rel_column_width / 2),
-                    "x_end": frame_index + 1 - (rel_column_width / 2),
-                    "y1_start": y1_start,
-                    "y1_end": y1_end,
-                    "y2_start": y2_start,
-                    "y2_end": y2_end,
-                    "row_index": 0,
-                    "alpha": ribbon_alpha,
-                    "color": ribbon_color,
-                    "spacing": 0,
-                }
-
                 if curve == "curve4":
-                    poly = patch_curve4(**ribbon_kwargs)
+                    poly = patch_curve4(
+                        x_start=frame_index + (rel_column_width / 2),
+                        x_end=frame_index + 1 - (rel_column_width / 2),
+                        y1_start=y1_start,
+                        y1_end=y1_end,
+                        y2_start=y2_start,
+                        y2_end=y2_end,
+                        row_index=0,
+                        alpha=ribbon_alpha,
+                        color=ribbon_color,
+                        spacing=0,
+                    )
                 elif curve == "curve3":
-                    poly = patch_curve3(**ribbon_kwargs)
+                    poly = patch_curve3(
+                        x_start=frame_index + (rel_column_width / 2),
+                        x_end=frame_index + 1 - (rel_column_width / 2),
+                        y1_start=y1_start,
+                        y1_end=y1_end,
+                        y2_start=y2_start,
+                        y2_end=y2_end,
+                        row_index=0,
+                        alpha=ribbon_alpha,
+                        color=ribbon_color,
+                        spacing=0,
+                    )
                 elif curve == "line":
-                    poly = patch_line(**ribbon_kwargs)
+                    poly = patch_line(
+                        x_start=frame_index + (rel_column_width / 2),
+                        x_end=frame_index + 1 - (rel_column_width / 2),
+                        y1_start=y1_start,
+                        y1_end=y1_end,
+                        y2_start=y2_start,
+                        y2_end=y2_end,
+                        row_index=0,
+                        alpha=ribbon_alpha,
+                        color=ribbon_color,
+                        spacing=0,
+                    )
 
                 ax.add_patch(poly)
