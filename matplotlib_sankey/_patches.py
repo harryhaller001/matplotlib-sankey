@@ -1,6 +1,7 @@
-from matplotlib_sankey._types import AcceptedColors
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path
+
+from matplotlib_sankey._types import AcceptedColors
 
 
 def patch_line(
@@ -60,7 +61,7 @@ def patch_curve3(
 
     x_middle = ((x_end - x_start) / 2) + x_start
 
-    PathPatch(
+    return PathPatch(
         Path(
             vertices=[
                 (x_start, y1_start + (spacing * row_index)),
