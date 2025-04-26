@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
-from matplotlib.patches import Rectangle, PathPatch
+from matplotlib.patches import Rectangle, PathPatch, Patch
+from matplotlib.ticker import FixedLocator
 
 from ._types import AcceptedColors, CurveType
 from ._utils import _clean_axis, _generate_cmap
@@ -12,15 +13,50 @@ def sankey(
     figsize: tuple[int, int] | None = None,
     frameon: bool = False,
     ax: Axes | None = None,
-    spacing: float = 0.03,
+    spacing: float = 0.00,
     annotate_columns: bool = False,
     rel_column_width: float = 0.15,
     cmap: AcceptedColors = "tab10",
-    curve: CurveType = "curve4",
+    curve_type: CurveType = "curve4",
     ribbon_alpha: float = 0.2,
     ribbon_color: str = "black",
-):
-    """Sankey plot."""
+    title: str | None = None,
+    show: bool = True,
+    show_legend: bool = False,
+    legend_labels: list[str] | None = None,
+    column_labels: list[str] | None = None,
+) -> Axes:
+    """Sankey plot.
+
+    Args:
+        data (list[list[tuple[int | str, int | str, float | int]]]): Input data.
+        figsize (tuple[int, int] | None): Size of figure. Defaults to `None`.
+        frameon (bool, optional): Draw frame. Defaults to `True`.
+        ax (matplotlib.Axes | None, optional): Provide matplotlib Axes instance for plotting. Defaults to `None`.
+        spacing (float, optional): Spacing between column and ribbon patches. Defaults to `0.0`.
+        annotate_columns (bool, optional): Annotate columns of plot. Defaults to `False`.
+        rel_column_width (float, optional): Relative width of columns compared to ribbons. Defaults to `0.15`. Value must be between 0 and 1.
+        cmap (Sequence[str] | Colormap | str | Sequence[tuple[float, float, float]], optional): Colors or colormap for columns.
+        curve_type (Literal["curve3", "curve4", "line"], optional): Curve type ofo ribbon. Defaults to `"curve4"`.
+        ribbon_alpha (float, optional): Alpha of ribbons. Defaults to `0.2`.
+        ribbon_color (str, optional): Color of ribbons. Defaults to `"black"`.
+        title (str | None, optional): Title of figure. Defaults to `None`.
+        show (bool, optional): Show figure. Defaults to `True`.
+        show_legend (bool, optional): Show legend. Defaults to `False`. If legend should be displayed, also provide `legend_labels`.
+        legend_labels (list[str] | None, optional): Labels to display in legend. Defaults to `None`.
+        column_labels (list[str] | None, optional): Labels for columns. Defaults to `None`.
+
+    Returns:
+        Matplotlib axes instance.
+
+    ReturnType:
+        matplitlib.Axes
+
+    """
+    assert (
+        rel_column_width > 0 and rel_column_width < 1
+    ), "Value for parameter 'rel_column_width' must be between 0 and 1."
+
     if ax is None:
         _, ax = plt.subplots(figsize=figsize, frameon=frameon)
 
@@ -30,6 +66,8 @@ def sankey(
 
     ax.set_ylim(0.0, 1.0)
     ax.set_xlim(-1 * (rel_column_width / 2), (ncols - 1) + (rel_column_width / 2))
+
+    ax.xaxis.set_major_locator(FixedLocator(list(range(ncols))))
 
     # Prepare data
     column_weights: list[dict[int | str, int | float]] = [{} for _ in range(ncols)]
@@ -59,6 +97,8 @@ def sankey(
     # Plot rectangles
     column_rects: list[dict[int | str, tuple[float, float, float, float]]] = [{} for _ in range(ncols)]
     rect_num = 0
+
+    legend_handles: list[tuple[str, tuple[float, float, float, float]]] = []
 
     for frame_index in range(ncols):
         column_total_weight = sum(column_weights[frame_index].values())
@@ -102,6 +142,8 @@ def sankey(
                     ha="center",
                     va="center",
                 )
+
+            legend_handles.append((str(column_key), cmap(rect_num)))
 
             rect_num += 1
 
@@ -149,7 +191,7 @@ def sankey(
 
                 poly: PathPatch
 
-                if curve == "curve4":
+                if curve_type == "curve4":
                     poly = patch_curve4(
                         x_start=frame_index + (rel_column_width / 2),
                         x_end=frame_index + 1 - (rel_column_width / 2),
@@ -162,7 +204,7 @@ def sankey(
                         color=ribbon_color,
                         spacing=0,
                     )
-                elif curve == "curve3":
+                elif curve_type == "curve3":
                     poly = patch_curve3(
                         x_start=frame_index + (rel_column_width / 2),
                         x_end=frame_index + 1 - (rel_column_width / 2),
@@ -175,7 +217,7 @@ def sankey(
                         color=ribbon_color,
                         spacing=0,
                     )
-                elif curve == "line":
+                elif curve_type == "line":
                     poly = patch_line(
                         x_start=frame_index + (rel_column_width / 2),
                         x_end=frame_index + 1 - (rel_column_width / 2),
@@ -188,5 +230,34 @@ def sankey(
                         color=ribbon_color,
                         spacing=0,
                     )
+                else:
+                    raise ValueError(f"curve_type '{curve_type}' not supported.")
 
                 ax.add_patch(poly)
+
+    if show_legend is True:
+        legend_patches = []
+        for handle_index, (label, color) in enumerate(legend_handles):
+            if legend_labels is None:
+                legend_patches.append(Patch(facecolor=color, label=label))
+            else:
+                legend_patches.append(Patch(facecolor=color, label=legend_labels[handle_index]))
+
+        ax.legend(
+            handles=legend_patches,
+            frameon=False,
+            bbox_to_anchor=(1, 1),
+            loc="upper left",
+        )
+
+    if title is not None:
+        ax.set_title(title)
+
+    if show is False:
+        plt.close()
+
+    if column_labels is not None:
+        assert len(column_labels) == ncols
+        ax.set_xticklabels(column_labels)
+
+    return ax

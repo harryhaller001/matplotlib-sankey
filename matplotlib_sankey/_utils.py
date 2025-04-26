@@ -55,3 +55,24 @@ def _generate_cmap(value: AcceptedColors, nrows: int) -> Colormap:
         return _convert_sequential_cmap_to_listed(value)
 
     raise TypeError(f"Type '{type(value).__name__}' not allowed.")
+
+
+def from_matrix(mtx: Sequence[Sequence[int | float]]) -> Sequence[tuple[int | str, int | str, float | int]]:
+    """Convert weight matrix to tuple of source, target and weight.
+
+    Args:
+        mtx (list[list[int | float]], optional): Weight matrix (source x target).
+
+    Returns:
+        List of tuples containing source, target and weight.
+
+    ReturnType:
+        list[tuple[int | str, int | str, float | int]]
+
+    """
+    connections = []
+    for row in range(len(mtx)):
+        for col in range(len(mtx[row])):
+            if mtx[row][col] > 0:
+                connections.append((row, col, mtx[row][col]))
+    return connections
