@@ -1,4 +1,4 @@
-from ._plotting import sankey, sankey_simple
+from ._plotting import sankey
 from ._version import __version__
 
-__all__ = ["sankey_simple", "sankey", "__version__"]
+__all__ = ["sankey", "__version__"]

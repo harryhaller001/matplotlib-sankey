@@ -1,218 +1,172 @@
-from typing import List, Optional, Tuple
-
 import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
-from matplotlib.patches import PathPatch, Rectangle
-from matplotlib.path import Path
-from numpy.typing import NDArray
+from matplotlib.patches import Rectangle, PathPatch
 
 from ._types import AcceptedColors, CurveType
 from ._utils import _clean_axis, _generate_cmap
+from ._patches import patch_curve3, patch_curve4, patch_line
 
 
-def sankey_simple(
-    data: NDArray,
-    colors: AcceptedColors = "tab10",
-    spacing: float = 0.0,
-    frameon: bool = True,
-    figsize: Tuple[int, int] = (5, 5),
-    curve_type: CurveType = "curve4",
-    alpha: float = 0.5,
-    tight_layout: bool = True,
-    max_scale: bool = False,
-    title: Optional[str] = None,
-    column_width: int = 1,
-    ribbon_width: int = 12,
-) -> Figure:
-    """Plot sankey.
+def sankey(
+    data: list[list[tuple[int | str, int | str, float | int]]],
+    figsize: tuple[int, int] | None = None,
+    frameon: bool = False,
+    ax: Axes | None = None,
+    spacing: float = 0.03,
+    annotate_columns: bool = False,
+    rel_column_width: float = 0.15,
+    cmap: AcceptedColors = "tab10",
+    curve: CurveType = "curve4",
+    ribbon_alpha: float = 0.2,
+    ribbon_color: str = "black",
+):
+    """Sankey plot."""
+    if ax is None:
+        _, ax = plt.subplots(figsize=figsize, frameon=frameon)
 
-    Args:
-        data (numpy.ndarray): Input data.
-        colors (Union[NDArray, List[str]]): List of colors. Defaults to `tab10`.
-        spacing (float, optional): Spacing between column and ribbon patches. Defaults to `0.0`.
-        frameon (bool, optional): Draw frame. Defaults to `True`.
-        figsize (Tuple[int, int]): Size of figure. Defaults to `(5, 5)`.
-        curve_type (Literal["curve3", "curve4", "line"], optional): Curve type ofo ribbon. Defaults to `"curve4"`.
-        alpha (float, optional): Alpha of ribbons. Defaults to `0.5`.
-        tight_layout (bool, optional): Use tight layout for figure. Defaults to `False`.
-        max_scale (bool, optional): Scale values for overall maximum keep absolute differences in column height. Defaults to `False`.
-        title (Optional[str], optional): Title of figure. Defaults to `None`.
-        column_width (int, optional): Relative width of columns. Defaults to `1`.
-        ribbon_width (int, optional): Relative width of ribbons. Defaults to `12`.
+    ncols = len(data) + 1
 
-    """
-    ncols, nrows = data.shape
+    ax = _clean_axis(ax, frameon=frameon)
 
-    # Get cmap
-    cmap = _generate_cmap(value=colors, nrows=nrows)
+    ax.set_ylim(0.0, 1.0)
+    ax.set_xlim(-1 * (rel_column_width / 2), (ncols - 1) + (rel_column_width / 2))
 
-    # Max Scale data to 1
-    scaled_data: NDArray[np.float64] = np.zeros(data.shape)
-    scale_factor: NDArray[np.float64]
+    # Prepare data
+    column_weights = [None] * ncols
 
-    if max_scale is True:
-        scale_factor = np.array([data.sum(axis=1).max()] * ncols)
-    else:
-        scale_factor = data.sum(axis=1)
+    cmap = _generate_cmap(cmap, 20)
 
-    for index, data_colum in enumerate(data):
-        scaled_data[index] = data_colum / scale_factor[index]
-
-    assert scaled_data.shape == data.shape, f"Scaled shape {scaled_data.shape} does not match input data {data.shape}"
-
-    # Init figure and axes
-    axes: List[Axes]
-
-    fig, axes = plt.subplots(
-        nrows=1,
-        ncols=ncols + ncols - 1,
-        sharey=True,
-        width_ratios=[*([column_width, ribbon_width] * (ncols - 1)), column_width],
-        frameon=frameon,
-        figsize=figsize,
-    )
-
-    # Remove spacing
-    fig.subplots_adjust(hspace=0, wspace=0)
-
-    total_height = 1.0 + (nrows * spacing)
-
-    # Draw columns on first axes
-    axes[0] = _clean_axis(axes[0], frameon=False)
-    axes[0].set_ylim(0.0, total_height)
-
-    for index, size in enumerate(scaled_data[0]):
-        rect = Rectangle(
-            xy=(0, sum(scaled_data[0][:index]) + (index * spacing)), width=1, height=size, color=cmap(index), zorder=1
-        )
-        axes[0].add_patch(rect)
-
-    for count_index, column_index in enumerate(((np.arange(ncols - 1) + 1) * 2) - 1):
-        # Draw ribbons
-        axes[column_index] = _clean_axis(axes[column_index], frameon=False)
-        axes[column_index].set_ylim(0.0, total_height)
-
-        for index in range(nrows):
-            y1_start = sum(scaled_data[count_index][:index])
-            y1_end = sum(scaled_data[count_index + 1][:index])
-
-            y2_start = sum(scaled_data[count_index + 1][: index + 1])
-            y2_end = sum(scaled_data[count_index][: index + 1])
-
-            poly: PathPatch
-            path_patch_kwargs = {
-                "color": cmap(index),
-                "zorder": 0,
-                "alpha": alpha,
-                "lw": 0,
-            }
-
-            # Add curves
-            if curve_type == "curve4":
-                poly = PathPatch(
-                    Path(
-                        vertices=[
-                            (0.0, y1_start + (spacing * index)),
-                            (0.5, y1_start + (spacing * index)),
-                            (0.5, y1_end + (spacing * index)),
-                            (1, y1_end + (spacing * index)),
-                            (1, y2_start + (spacing * index)),
-                            (0.5, y2_start + (spacing * index)),
-                            (0.5, y2_end + (spacing * index)),
-                            (0, y2_end + (spacing * index)),
-                        ],
-                        codes=[
-                            Path.MOVETO,
-                            Path.CURVE4,
-                            Path.CURVE4,
-                            Path.CURVE4,
-                            Path.LINETO,
-                            Path.CURVE4,
-                            Path.CURVE4,
-                            Path.CURVE4,
-                        ],
-                        closed=True,
-                    ),
-                    **path_patch_kwargs,
-                )
-
-            elif curve_type == "line":
-                poly = PathPatch(
-                    Path(
-                        vertices=[
-                            (0, y1_start + (spacing * index)),
-                            (1, y1_end + (spacing * index)),
-                            (1, y2_start + (spacing * index)),
-                            (0, y2_end + (spacing * index)),
-                        ],
-                        codes=[Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO],
-                        closed=True,
-                    ),
-                    **path_patch_kwargs,
-                )
-
-            elif curve_type == "curve3":
-                poly = PathPatch(
-                    Path(
-                        vertices=[
-                            (0.0, y1_start + (spacing * index)),
-                            (0.5, y1_start + (spacing * index)),
-                            (0.5, (y1_start - y1_end) / 2 + y1_end + (spacing * index)),
-                            (0.5, y1_end + (spacing * index)),
-                            (1, y1_end + (spacing * index)),
-                            (1, y2_start + (spacing * index)),
-                            (0.5, y2_start + (spacing * index)),
-                            (0.5, (y2_start - y2_end) / 2 + y2_end + (spacing * index)),
-                            (0.5, y2_end + (spacing * index)),
-                            (0, y2_end + (spacing * index)),
-                        ],
-                        codes=[
-                            Path.MOVETO,
-                            Path.CURVE3,
-                            Path.CURVE3,
-                            Path.CURVE3,
-                            Path.CURVE3,
-                            Path.LINETO,
-                            Path.CURVE3,
-                            Path.CURVE3,
-                            Path.CURVE3,
-                            Path.CURVE3,
-                        ],
-                        closed=True,
-                    ),
-                    **path_patch_kwargs,
-                )
+    for frame_index, frame in enumerate(data):
+        for source_index, target_index, weight in frame:
+            if column_weights[frame_index] is None:
+                column_weights[frame_index] = {
+                    source_index: weight,
+                }
             else:
-                raise ValueError(f"curve_type '{curve_type}' not supported.")
+                column_weights[frame_index][source_index] = column_weights[frame_index].get(source_index, 0) + weight
 
-            axes[column_index].add_patch(poly)
+            if frame_index == len(data) - 1:
+                # Add weights for last column
+                if column_weights[frame_index + 1] is None:
+                    column_weights[frame_index + 1] = {
+                        target_index: weight,
+                    }
+                else:
+                    column_weights[frame_index + 1][target_index] = (
+                        column_weights[frame_index + 1].get(target_index, 0) + weight
+                    )
 
-        # Add column for last data item
-        axes[column_index + 1] = _clean_axis(axes[column_index + 1], frameon=False)
-        axes[column_index + 1].set_ylim(0.0, total_height)
+    # Plot rectangles
+    column_rects = [None] * ncols
+    rect_num = 0
 
-        for index, size in enumerate(scaled_data[count_index + 1]):
+    for frame_index in range(ncols):
+        column_total_weight = sum(column_weights[frame_index].values())
+        column_prev_weight = 0
+
+        column_n_spacing = len(column_weights[frame_index].values()) - 1
+
+        spacing_scale_factor = 1 - (spacing * column_n_spacing)
+
+        for column_index, (column_key, weights) in enumerate(column_weights[frame_index].items()):
+            rect_x = frame_index - (rel_column_width / 2)
+            rect_y = column_prev_weight / column_total_weight + (column_index * spacing)
+            rect_height = (weights * spacing_scale_factor) / column_total_weight
+
+            column_prev_weight += weights * spacing_scale_factor
+
             rect = Rectangle(
-                xy=(0, sum(scaled_data[count_index + 1][:index]) + (index * spacing)),
-                width=1,
-                height=size,
-                color=cmap(index),
+                xy=(
+                    rect_x,
+                    rect_y,
+                ),
+                width=rel_column_width,
+                height=rect_height,
+                color=cmap(rect_num),
                 zorder=1,
                 lw=0,
             )
-            axes[column_index + 1].add_patch(rect)
+            ax.add_patch(rect)
 
-    if title is not None:
-        fig.suptitle(title, horizontalalignment="center", verticalalignment="baseline")
+            # Save in lookup dict
+            if column_rects[frame_index] is None:
+                column_rects[frame_index] = {column_key: (rect_x, rect_y, rel_column_width, rect_height)}
+            else:
+                column_rects[frame_index][column_key] = (rect_x, rect_y, rel_column_width, rect_height)
 
-    if tight_layout is True:
-        fig.tight_layout(pad=0)
+            if annotate_columns is True:
+                ax.text(
+                    x=rect_x + (rel_column_width / 2),
+                    y=rect_y + (rect_height / 2),
+                    s=str(column_key),
+                    ha="center",
+                    va="center",
+                )
 
-    plt.close()
-    return fig
+            rect_num += 1
 
+    # Plot ribbons
 
-def sankey():
-    pass
+    for frame_index in range(ncols - 1):
+        target_ribbon_offset = {}
+
+        for column_key in column_weights[frame_index].keys():
+            # print(column_key)
+            # Source rect dimensions
+            rect_x, rect_y, rect_width, rect_height = column_rects[frame_index][column_key]
+
+            # Get all connection targets
+            column_targets = {}
+            for source, target, connection_weights in data[frame_index]:
+                if source == column_key:
+                    column_targets[target] = connection_weights
+
+            ribbon_offset = 0
+
+            for target_index, ribbon_weight in column_targets.items():
+                # Start coords
+                y1_start = rect_y + +(rect_height * (ribbon_offset / sum(column_targets.values())))
+                y2_end = rect_y + (rect_height * ((ribbon_offset + ribbon_weight) / sum(column_targets.values())))
+
+                ribbon_offset += ribbon_weight
+
+                _, target_rect_y, _, target_rect_height = column_rects[frame_index + 1][target_index]
+
+                # End coords
+                y1_end = target_rect_y + (
+                    target_rect_height
+                    * (target_ribbon_offset.get(target_index, 0) / column_weights[frame_index + 1][target_index])
+                )
+                y2_start = target_rect_y + (
+                    target_rect_height
+                    * (
+                        (ribbon_weight + target_ribbon_offset.get(target_index, 0))
+                        / column_weights[frame_index + 1][target_index]
+                    )
+                )
+
+                target_ribbon_offset[target_index] = target_ribbon_offset.get(target_index, 0) + ribbon_weight
+
+                poly: PathPatch
+
+                ribbon_kwargs = {
+                    "x_start": frame_index + (rel_column_width / 2),
+                    "x_end": frame_index + 1 - (rel_column_width / 2),
+                    "y1_start": y1_start,
+                    "y1_end": y1_end,
+                    "y2_start": y2_start,
+                    "y2_end": y2_end,
+                    "row_index": 0,
+                    "alpha": ribbon_alpha,
+                    "color": ribbon_color,
+                    "spacing": 0,
+                }
+
+                if curve == "curve4":
+                    poly = patch_curve4(**ribbon_kwargs)
+                elif curve == "curve3":
+                    poly = patch_curve3(**ribbon_kwargs)
+                elif curve == "line":
+                    poly = patch_line(**ribbon_kwargs)
+
+                ax.add_patch(poly)

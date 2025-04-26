@@ -1,61 +1,146 @@
 
+# Declare global variables
+
+BASE_DIR		= ${PWD}
+
+PACKAGE_NAME	= matplotlib-sankey
+
+PACKAGE_DIR		= $(BASE_DIR)/matplotlib_sankey
+TEST_DIR		= $(BASE_DIR)/tests
+DOCS_DIR		= $(BASE_DIR)/docs
+
+PYTHON_OPT		= python3
+PIP_OPT			= $(PYTHON_OPT) -m pip --require-virtualenv
+MYPY_OPT		= $(PYTHON_OPT) -m mypy
+TEST_OPT		= $(PYTHON_OPT) -m pytest
+TWINE_OPT		= $(PYTHON_OPT) -m twine
+SPHINX_OPT		= $(PYTHON_OPT) -m sphinx
+COVERAGE_OPT	= $(PYTHON_OPT) -m coverage
+FLIT_OPT		= $(PYTHON_OPT) -m flit
+RUFF_OPT		= $(PYTHON_OPT) -m ruff
+PRE_COMMIT_OPT	= pre-commit
+
+# Run help by default
 
 .DEFAULT_GOAL := help
 
 
+
 .PHONY : help
-help:
+help: ## This help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 
-# Install requirements
+
+
+# Dependency handling
+
 .PHONY : install
-install: ## Install dependencies for production
-	python3 -m pip --require-virtualenv install --upgrade pip
-	python3 -m pip --require-virtualenv install flit build
-	python3 -m flit install --deps production
-	python3 -m pip --require-virtualenv install .
+install: ## install all python dependencies
 
-.PHONY : install-dev
-install-dev: install ## Install dependencies for development and production
-	python3 -m pip --require-virtualenv install '.[dev]'
-	pre-commit install --hook-type pre-commit --hook-type pre-push
+# Install dev dependencies
+	@$(PIP_OPT) install -e ".[test,docs]" --upgrade
 
-# Build and upload package
+# Install precommit hook
+	@$(PRE_COMMIT_OPT) install
+
+.PHONY : freeze
+freeze: ## Freeze package dependencies
+	@$(PYTHON_OPT) --version > .python-version
+	@$(PIP_OPT) freeze --exclude $(PACKAGE_NAME) > requirements.txt
+
+
+
+
 .PHONY : build
-build: ## Build python package
-	python3 -m build
-	python3 -m twine check --strict dist/*.whl
+build: # Twine package upload and checks
 
-.PHONY : upload
-upload: ## Publish package with flit
-	python3 -m flit publish
+# Remove old keggtools package
+	@$(PIP_OPT) uninstall $(PACKAGE_NAME) -y --quiet
 
-# Testing
-.PHONY : pytest
-pytest: ## Run pytest with coverage
-	python3 -m coverage run -m pytest --maxfail=10
-	python3 -m coverage report -m
-	python3 -m coverage html
+# Remove dist folder
+	@rm -rf ./dist/*
 
-uninstall: ## Uninstall package
-	python3 -m pip uninstall matplotlib_sankey -y --quiet
+# Build package with flit backend
+	@$(FLIT_OPT) build --setup-py
 
+# Check package using twine
+	@$(TWINE_OPT) check --strict ./dist/*
 
-reinstall: uninstall ## Uninstall and install package
-	python3 -m pip --require-virtualenv install .
+# Install package with flit
+	@$(FLIT_OPT) install --deps=none
 
 
-format: ## Formatting code
-	isort matplotlib_sankey/*.py
-	isort tests/*.py
 
-freeze: ## Freeze dependencies
-	python3 --version > .python-version
-	python3 -m pip freeze --exclude matplotlib_sankey > requirements.txt
-
-typing: ## Check typing of code with mypy
-	python3 -m mypy matplotlib_sankey/*.py
+.PHONY : format
+format: ## Lint and format code with flake8 and black
+	@$(RUFF_OPT) format $(PACKAGE_DIR) $(TEST_DIR) $(DOCS_DIR)/source/conf.py
+	@$(RUFF_OPT) check --fix $(PACKAGE_DIR) $(TEST_DIR) $(DOCS_DIR)/source/conf.py
 
 
-check: install-dev freeze format typing pytest build ## Running all checks
+.PHONY: testing
+testing: ## Unittest of package
+# @$(TEST_OPT) --show-capture=log
+
+	@$(COVERAGE_OPT) run -m pytest
+	@$(COVERAGE_OPT) html
+
+# Long coverage report
+	@$(COVERAGE_OPT) report -m
+
+
+.PHONY: typing
+typing: ## Run static code analysis
+	@$(MYPY_OPT) $(PACKAGE_DIR) $(TEST_DIR) $(DOCS_DIR)/source/conf.py
+
+
+
+.PHONY: clean
+clean: ## Clean all build and caching directories
+
+# Remove package build folders
+	@rm -rf ./build
+	@rm -rf ./dist
+	@rm -rf ./$(PACKAGE_NAME).egg-info
+
+# Remove mypy and pytest caching folders
+	@rm -rf ./.mypy_cache
+	@rm -rf ./.pytest_cache
+	@rm -rf ./coverage
+	@rm -f .coverage
+
+# Remove build folders for docs
+	@rm -rf ./docs/_build
+	@rm -rf ./docs/dist
+
+
+
+.PHONY: docs
+docs: ## Build sphinx docs
+	@rm -rf ./docs/_build
+
+	@$(SPHINX_OPT) -M doctest $(DOCS_DIR)/source $(DOCS_DIR)/_build
+	@$(SPHINX_OPT) -M coverage $(DOCS_DIR)/source $(DOCS_DIR)/_build
+
+# Build HTML version
+	@$(SPHINX_OPT) -M html $(DOCS_DIR)/source $(DOCS_DIR)/_build
+
+
+
+
+
+# Run all checks (always before committing!)
+.PHONY: check
+check: install freeze format typing testing build docs precommit ## Full check of package
+
+
+
+.PHONY : precommit
+precommit: ## Run precommit file
+#	@pre-commit run --all-files --verbose
+	@$(PRE_COMMIT_OPT) run --all-files
+
+
+.PHONY : open-docs
+open-docs: ## Open build docs in webbrowser
+	@$(PYTHON_OPT) -m webbrowser -t file:///${PWD}/docs/_build/html/index.html
