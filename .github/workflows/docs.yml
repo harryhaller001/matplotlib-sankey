@@ -28,6 +28,7 @@ jobs:
         # Install docs dependencies
         -   name: Install docs dependencies
             run: |
+                sudo apt-get install -y pandoc
                 python -m pip install ".[docs]"
 
 
