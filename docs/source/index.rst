@@ -8,7 +8,7 @@
 matplotlib-sankey
 =================
 
-Lorem
+Generate sankey plot with matplotlib. For an example, see :doc:`example`.
 
 
 Get started

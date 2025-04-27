@@ -67,7 +67,8 @@ def sankey(
     ax.set_ylim(0.0, 1.0)
     ax.set_xlim(-1 * (rel_column_width / 2), (ncols - 1) + (rel_column_width / 2))
 
-    ax.xaxis.set_major_locator(FixedLocator(list(range(ncols))))
+    if column_labels is not None:
+        ax.xaxis.set_major_locator(FixedLocator(list(range(ncols))))
 
     # Prepare data
     column_weights: list[dict[int | str, int | float]] = [{} for _ in range(ncols)]
@@ -255,9 +256,14 @@ def sankey(
 
     if show is False:
         plt.close()
+    else:
+        plt.show()
 
     if column_labels is not None:
         assert len(column_labels) == ncols
         ax.set_xticklabels(column_labels)
+    # else:
+    #     ax.set_xticklabels(None)
+    #     ax.set_xticks([])
 
     return ax

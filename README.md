@@ -16,6 +16,31 @@ cd matplotlib-sankey
 pip install .
 ```
 
+
+### Example
+
+```python
+data = [
+    [(0, 2, 20), (0, 1, 10), (3, 4, 15), (3, 2, 10), (5, 1, 5), (5, 2, 50)],
+    [(2, 6, 40), (1, 6, 15), (2, 7, 40), (4, 6, 15)],
+    [(7, 8, 5), (7, 9, 5), (7, 10, 20), (7, 11, 10), (6, 11, 55), (6, 8, 15)],
+]
+
+fig, ax = plt.subplots(figsize=(10, 5))
+fig.tight_layout()
+sankey(
+    data=data,
+    cmap="tab20",
+    annotate_columns=True,
+    ax=ax,
+    spacing=0.03,
+)
+```
+
+![Sankey plot example](./docs/source/_static/images/example_sankey_plot.jpg)
+
+
+
 ### Development
 
 ```bash
@@ -23,12 +48,5 @@ python3.10 -m virtualenv venv
 source venv/bin/activate
 
 # Install dev dependencies
-make install-dev
+make install
 ```
-
-### TODO
-
-* Support for colormaps
-* Add ribbons with multiple destinations/splitting ribbons, implement transition matrix as input parameter
-* annotate columns and ribbons
-* add parameter for ribbon colors

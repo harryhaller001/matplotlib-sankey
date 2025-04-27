@@ -129,6 +129,7 @@ html_context = dict(  # noqa: C408
     show_powered_by=False,
 )
 html_title = PACKAGE_NAME
+html_logo = "_static/images/logo.svg"
 html_css_files = [
     "css/custom.css",
 ]

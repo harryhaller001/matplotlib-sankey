@@ -119,6 +119,8 @@ clean: ## Clean all build and caching directories
 docs: ## Build sphinx docs
 	@rm -rf ./docs/_build
 
+	@$(PYTHON_OPT) ./docs/generate_example.py
+
 	@$(SPHINX_OPT) -M doctest $(DOCS_DIR)/source $(DOCS_DIR)/_build
 	@$(SPHINX_OPT) -M coverage $(DOCS_DIR)/source $(DOCS_DIR)/_build
 
