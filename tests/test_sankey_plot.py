@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from matplotlib_sankey import sankey
 
 
@@ -8,4 +9,12 @@ def test_sankey_simple_plot():
         [(2, 6, 40), (1, 6, 15), (2, 7, 40), (4, 6, 15)],
         [(7, 8, 5), (7, 9, 5), (7, 10, 20), (7, 11, 10), (6, 11, 55), (6, 8, 15)],
     ]
-    sankey(data)
+    sankey(data, frameon=True)
+    sankey(data, curve_type="curve3")
+    sankey(data, curve_type="line")
+    sankey(data, title="test")
+    sankey(data, cmap="Reds")
+    sankey(data, show_legend=True)
+
+    _, ax = plt.subplots()
+    sankey(data, ax=ax)

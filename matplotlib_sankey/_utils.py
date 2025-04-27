@@ -57,11 +57,17 @@ def _generate_cmap(value: AcceptedColors, nrows: int) -> Colormap:
     raise TypeError(f"Type '{type(value).__name__}' not allowed.")
 
 
-def from_matrix(mtx: Sequence[Sequence[int | float]]) -> Sequence[tuple[int | str, int | str, float | int]]:
+def from_matrix(
+    mtx: Sequence[Sequence[int | float]],
+    source_indicies: list[int | str] | None = None,
+    target_indicies: list[int | str] | None = None,
+) -> Sequence[tuple[int | str, int | str, float | int]]:
     """Convert weight matrix to tuple of source, target and weight.
 
     Args:
-        mtx (list[list[int | float]], optional): Weight matrix (source x target).
+        mtx (Sequence[Sequence[int | float]], optional): Weight matrix (source x target).
+        source_indicies (list[int | str] | None, optional): List of source indices. Defaults to `None`.
+        target_indicies (list[int | str] | None, optional): List of target indices. Defaults to `None`.
 
     Returns:
         List of tuples containing source, target and weight.
@@ -70,9 +76,22 @@ def from_matrix(mtx: Sequence[Sequence[int | float]]) -> Sequence[tuple[int | st
         list[tuple[int | str, int | str, float | int]]
 
     """
+    # Check correct dimensions of index list
+    if source_indicies is not None:
+        assert len(source_indicies) == len(mtx)
+    if target_indicies is not None:
+        assert len(target_indicies) == len(mtx[0])
+
     connections = []
     for row in range(len(mtx)):
         for col in range(len(mtx[row])):
             if mtx[row][col] > 0:
-                connections.append((row, col, mtx[row][col]))
+                source_index: int | str = row
+                target_index: int | str = col
+
+                if source_indicies is not None:
+                    source_index = source_indicies[row]
+                if target_indicies is not None:
+                    target_index = target_indicies[col]
+                connections.append((source_index, target_index, mtx[row][col]))
     return connections
