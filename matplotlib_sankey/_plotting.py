@@ -256,8 +256,8 @@ def sankey(
 
     if show is False:
         plt.close()
-    else:
-        plt.show()
+    # else:
+    #     plt.show()
 
     if column_labels is not None:
         assert len(column_labels) == ncols
