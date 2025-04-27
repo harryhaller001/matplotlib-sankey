@@ -8,6 +8,20 @@
 matplotlib-sankey
 =================
 
+.. image:: https://codecov.io/gh/harryhaller001/matplotlib-sankey/graph/badge.svg?token=SPSPC7MSV0
+    :target: https://codecov.io/gh/harryhaller001/matplotlib-sankey
+
+.. image:: https://img.shields.io/pypi/v/matplotlib-sankey
+   :alt: PyPI - Version
+
+.. image:: https://img.shields.io/pypi/l/matplotlib-sankey
+   :alt: PyPI - License
+
+.. image:: https://img.shields.io/pypi/pyversions/matplotlib-sankey
+   :alt: PyPI - Python Version
+
+|
+
 Generate sankey plot with matplotlib. For an example, see :doc:`example`.
 
 

@@ -1,5 +1,12 @@
 # matplotlib-sankey
 
+[![codecov](https://codecov.io/gh/harryhaller001/matplotlib-sankey/graph/badge.svg?token=SPSPC7MSV0)](https://codecov.io/gh/harryhaller001/matplotlib-sankey)
+[![Version](https://img.shields.io/pypi/v/matplotlib-sankey)](https://pypi.org/project/matplotlib-sankey/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matplotlib-sankey)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/harryhaller001/matplotlib-sankey/testing.yml)
+
+[Documentation](https://harryhaller001.github.io/matplotlib-sankey/) | [PyPI](https://pypi.org/project/matplotlib-sankey/) | [Github repository](https://github.com/harryhaller001/matplotlib-sankey) | [Codecov](https://codecov.io/gh/harryhaller001/matplotlib-sankey)
+
 Sankey plot for matplotlib
 
 ### Installation
