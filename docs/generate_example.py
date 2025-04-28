@@ -18,7 +18,7 @@ if __name__ == "__main__":
     sankey(
         data=data,
         cmap="tab20",
-        annotate_columns=True,
+        annotate_columns="index",
         ax=ax,
         # title="Sankey plot",
         spacing=0.03,

@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
 from matplotlib import colormaps
@@ -95,3 +96,20 @@ def from_matrix(
                     target_index = target_indicies[col]
                 connections.append((source_index, target_index, mtx[row][col]))
     return connections
+
+
+def isinstance_list_of(object: Any, dtype: type) -> bool:
+    """Check if object is list of type.
+
+    Args:
+        object (typing.Any): instance to test.
+        dtype (type): Expected type of list items.
+
+    Returns: boolean
+
+    ReturnType: bool
+
+    """
+    if isinstance(object, list):
+        return all(isinstance(x, dtype) for x in object)
+    return False

@@ -1,3 +1,5 @@
+from typing import Literal, Any
+
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle, PathPatch, Patch
@@ -14,7 +16,7 @@ def sankey(
     frameon: bool = False,
     ax: Axes | None = None,
     spacing: float = 0.00,
-    annotate_columns: bool = False,
+    annotate_columns: Literal["index", "weight", "weight_percent"] | None = None,
     rel_column_width: float = 0.15,
     cmap: AcceptedColors = "tab10",
     curve_type: CurveType = "curve4",
@@ -25,6 +27,7 @@ def sankey(
     show_legend: bool = False,
     legend_labels: list[str] | None = None,
     column_labels: list[str] | None = None,
+    annotate_columns_font_kwargs: dict[str, Any] | None = None,
 ) -> Axes:
     """Sankey plot.
 
@@ -34,7 +37,7 @@ def sankey(
         frameon (bool, optional): Draw frame. Defaults to `True`.
         ax (matplotlib.Axes | None, optional): Provide matplotlib Axes instance for plotting. Defaults to `None`.
         spacing (float, optional): Spacing between column and ribbon patches. Defaults to `0.0`.
-        annotate_columns (bool, optional): Annotate columns of plot. Defaults to `False`.
+        annotate_columns (Literal["index", "weight", "weight_percent"], optional): Annotate columns of plot. Annotations options are column name (`index`), column total weight (`weight`) or percent of weight (`weight_percent`). Defaults to `None`.
         rel_column_width (float, optional): Relative width of columns compared to ribbons. Defaults to `0.15`. Value must be between 0 and 1.
         cmap (Sequence[str] | Colormap | str | Sequence[tuple[float, float, float]], optional): Colors or colormap for columns.
         curve_type (Literal["curve3", "curve4", "line"], optional): Curve type ofo ribbon. Defaults to `"curve4"`.
@@ -45,6 +48,7 @@ def sankey(
         show_legend (bool, optional): Show legend. Defaults to `False`. If legend should be displayed, also provide `legend_labels`.
         legend_labels (list[str] | None, optional): Labels to display in legend. Defaults to `None`.
         column_labels (list[str] | None, optional): Labels for columns. Defaults to `None`.
+        annotate_columns_font_kwargs (dict[str, Any] | None, optional): Extra arguments for column `ax.text` method of column annotation. Defaults to `None`.
 
     Returns:
         Matplotlib axes instance.
@@ -73,8 +77,6 @@ def sankey(
     # Prepare data
     column_weights: list[dict[int | str, int | float]] = [{} for _ in range(ncols)]
 
-    cmap = _generate_cmap(cmap, 20)
-
     for frame_index, frame in enumerate(data):
         for source_index, target_index, weight in frame:
             if column_weights[frame_index] is None:
@@ -94,6 +96,12 @@ def sankey(
                     column_weights[frame_index + 1][target_index] = (
                         column_weights[frame_index + 1].get(target_index, 0) + weight
                     )
+
+    # Total number of column rects
+    total_rects: int = sum([len(col.keys()) for col in column_weights])
+
+    # Generate cmap
+    cmap = _generate_cmap(cmap, total_rects)
 
     # Plot rectangles
     column_rects: list[dict[int | str, tuple[float, float, float, float]]] = [{} for _ in range(ncols)]
@@ -135,13 +143,35 @@ def sankey(
             else:
                 column_rects[frame_index][column_key] = (rect_x, rect_y, rel_column_width, rect_height)
 
-            if annotate_columns is True:
+            if annotate_columns is not None:
+                annotation_text: str
+
+                if annotate_columns == "index":
+                    annotation_text = str(column_key)
+                elif annotate_columns == "weight":
+                    annotation_text = str(weights)
+                elif annotate_columns == "weight_percent":
+                    annotation_text = str(round(weights / sum(column_weights[frame_index].values()) * 100, 2)) + "%"
+                else:
+                    raise ValueError(f"Value '{annotate_columns}' is not supported.")
+
+                if annotate_columns_font_kwargs is None:
+                    annotate_columns_font_kwargs = {
+                        "ha": "center",
+                        "va": "center",
+                    }
+                else:
+                    # If not set, use horizontal and vertical center alignment
+                    if "ha" not in annotate_columns_font_kwargs:
+                        annotate_columns_font_kwargs["ha"] = "center"
+                    if "va" not in annotate_columns_font_kwargs:
+                        annotate_columns_font_kwargs["va"] = "center"
+
                 ax.text(
                     x=rect_x + (rel_column_width / 2),
                     y=rect_y + (rect_height / 2),
-                    s=str(column_key),
-                    ha="center",
-                    va="center",
+                    s=annotation_text,
+                    **annotate_columns_font_kwargs,
                 )
 
             legend_handles.append((str(column_key), cmap(rect_num)))
