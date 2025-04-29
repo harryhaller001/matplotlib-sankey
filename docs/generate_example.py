@@ -17,7 +17,7 @@ if __name__ == "__main__":
     fig.tight_layout()
     sankey(
         data=data,
-        cmap="tab20",
+        color="tab20",
         annotate_columns="index",
         ax=ax,
         # title="Sankey plot",

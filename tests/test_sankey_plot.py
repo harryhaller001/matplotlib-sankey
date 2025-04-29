@@ -13,7 +13,7 @@ def test_sankey_simple_plot():
     sankey(data, curve_type="curve3")
     sankey(data, curve_type="line")
     sankey(data, title="test")
-    sankey(data, cmap="Reds")
+    sankey(data, color="Reds")
     sankey(data, show_legend=True)
 
     _, ax = plt.subplots()

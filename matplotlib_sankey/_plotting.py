@@ -1,13 +1,16 @@
+from collections.abc import Sequence
 from typing import Literal, Any
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle, PathPatch, Patch
 from matplotlib.ticker import FixedLocator
+from matplotlib.colors import Colormap
 
-from ._types import AcceptedColors, CurveType
-from ._utils import _clean_axis, _generate_cmap
+from ._types import CurveType, ColorTuple
+from ._utils import _clean_axis
 from ._patches import patch_curve3, patch_curve4, patch_line
+from ._colors import colormap_to_list, is_color, is_colormap, unify_color
 
 
 def sankey(
@@ -18,7 +21,13 @@ def sankey(
     spacing: float = 0.00,
     annotate_columns: Literal["index", "weight", "weight_percent"] | None = None,
     rel_column_width: float = 0.15,
-    cmap: AcceptedColors = "tab10",
+    color: Sequence[str]
+    | Sequence[Sequence[str]]
+    | Colormap
+    | Sequence[Colormap]
+    | str
+    | Sequence[tuple[float, float, float]]
+    | Sequence[tuple[float, float, float, float]] = "tab10",
     curve_type: CurveType = "curve4",
     ribbon_alpha: float = 0.2,
     ribbon_color: str = "black",
@@ -39,7 +48,7 @@ def sankey(
         spacing (float, optional): Spacing between column and ribbon patches. Defaults to `0.0`.
         annotate_columns (Literal["index", "weight", "weight_percent"], optional): Annotate columns of plot. Annotations options are column name (`index`), column total weight (`weight`) or percent of weight (`weight_percent`). Defaults to `None`.
         rel_column_width (float, optional): Relative width of columns compared to ribbons. Defaults to `0.15`. Value must be between 0 and 1.
-        cmap (Sequence[str] | Colormap | str | Sequence[tuple[float, float, float]], optional): Colors or colormap for columns.
+        color (Sequence[str] | Colormap | str | Sequence[tuple[float, float, float]], optional): Colors or colormap for columns.
         curve_type (Literal["curve3", "curve4", "line"], optional): Curve type ofo ribbon. Defaults to `"curve4"`.
         ribbon_alpha (float, optional): Alpha of ribbons. Defaults to `0.2`.
         ribbon_color (str, optional): Color of ribbons. Defaults to `"black"`.
@@ -100,14 +109,46 @@ def sankey(
     # Total number of column rects
     total_rects: int = sum([len(col.keys()) for col in column_weights])
 
-    # Generate cmap
-    cmap = _generate_cmap(cmap, total_rects)
+    # Generate 2d matrix to assign color to each rectangle per column
+    # cmap = _generate_cmap(cmap, total_rects)
+
+    color_matrix: list[list[ColorTuple]] = []
+
+    iterations = 0
+    for col_index in range(len(column_weights)):
+        new_column: list[ColorTuple] = []
+        for _ in range(len(column_weights[col_index].keys())):
+            if is_color(color):
+                # Fill all fields with this color
+                new_column.append(unify_color(color))
+            elif isinstance(color, str):
+                if is_colormap(color):
+                    # Fill all fields according to colormap
+                    new_column.append(colormap_to_list(name=color, num=total_rects, rollover=True)[iterations])
+                else:
+                    raise ValueError(
+                        "If cmap argument is a string, please provide color name, hex code or name of colormap."
+                    )
+            elif isinstance(color, list | tuple | set):
+                # Check if size of colormap is correct
+                assert len(color) == len(column_weights)
+
+                # TODO: process column wise definition of color
+
+            else:
+                raise ValueError("Value of cmap not supported.")
+
+            iterations += 1
+
+        color_matrix.append(new_column)
+
+    # print(color_matrix)
 
     # Plot rectangles
     column_rects: list[dict[int | str, tuple[float, float, float, float]]] = [{} for _ in range(ncols)]
     rect_num = 0
 
-    legend_handles: list[tuple[str, tuple[float, float, float, float]]] = []
+    legend_handles: list[tuple[str, ColorTuple]] = []
 
     for frame_index in range(ncols):
         column_total_weight = sum(column_weights[frame_index].values())
@@ -131,7 +172,8 @@ def sankey(
                 ),
                 width=rel_column_width,
                 height=rect_height,
-                color=cmap(rect_num),
+                # color=cmap(rect_num),
+                color=color_matrix[frame_index][column_index],
                 zorder=1,
                 lw=0,
             )
@@ -174,7 +216,13 @@ def sankey(
                     **annotate_columns_font_kwargs,
                 )
 
-            legend_handles.append((str(column_key), cmap(rect_num)))
+            legend_handles.append(
+                (
+                    str(column_key),
+                    color_matrix[frame_index][column_index],
+                    # cmap(rect_num),
+                )
+            )
 
             rect_num += 1
 
@@ -268,11 +316,11 @@ def sankey(
 
     if show_legend is True:
         legend_patches = []
-        for handle_index, (label, color) in enumerate(legend_handles):
+        for handle_index, (label, patch_color) in enumerate(legend_handles):
             if legend_labels is None:
-                legend_patches.append(Patch(facecolor=color, label=label))
+                legend_patches.append(Patch(facecolor=patch_color, label=label))
             else:
-                legend_patches.append(Patch(facecolor=color, label=legend_labels[handle_index]))
+                legend_patches.append(Patch(facecolor=patch_color, label=legend_labels[handle_index]))
 
         ax.legend(
             handles=legend_patches,
@@ -286,14 +334,9 @@ def sankey(
 
     if show is False:
         plt.close()
-    # else:
-    #     plt.show()
 
     if column_labels is not None:
         assert len(column_labels) == ncols
         ax.set_xticklabels(column_labels)
-    # else:
-    #     ax.set_xticklabels(None)
-    #     ax.set_xticks([])
 
     return ax
