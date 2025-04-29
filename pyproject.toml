@@ -63,7 +63,7 @@ optional-dependencies.test = [
 ]
 
 # https://docs.pypi.org/project_metadata/#project-urls
-urls.Documentation = "https://github.com/harryhaller001/matplotlib-sankey"
+urls.Documentation = "https://harryhaller001.github.io/matplotlib-sankey/"
 urls.Homepage = "https://github.com/harryhaller001/matplotlib-sankey"
 urls.Source = "https://github.com/harryhaller001/matplotlib-sankey"
 
@@ -79,6 +79,7 @@ exclude = [
     ".python-version",
     # "requirements.txt",
     ".vscode/",
+    "dev/",
 ]
 
 [tool.ruff]

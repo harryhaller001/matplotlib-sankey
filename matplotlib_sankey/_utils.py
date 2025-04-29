@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from typing import Any
+from types import UnionType
 
 import numpy as np
 from matplotlib import colormaps
@@ -98,7 +99,7 @@ def from_matrix(
     return connections
 
 
-def isinstance_list_of(object: Any, dtype: type) -> bool:
+def isinstance_list_of(object: Any, dtype: type | UnionType) -> bool:
     """Check if object is list of type.
 
     Args:
