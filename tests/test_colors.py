@@ -1,4 +1,4 @@
-from matplotlib_sankey._colors import is_color, is_colormap
+from matplotlib_sankey._colors import is_color, is_colormap, colormap_to_list
 
 
 def test_color_utils() -> None:
@@ -15,3 +15,5 @@ def test_color_utils() -> None:
 
     assert is_colormap("tab10")
     assert is_colormap("blue") is False
+
+    assert len(colormap_to_list("Reds", 20)) == 20

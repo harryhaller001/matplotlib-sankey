@@ -1,6 +1,6 @@
 from typing import Any
 import re
-from matplotlib.colors import get_named_colors_mapping
+from matplotlib.colors import get_named_colors_mapping, Normalize
 
 from ._utils import isinstance_list_of
 
@@ -46,3 +46,30 @@ def is_color(color: Any) -> bool:
             return isinstance_list_of(color, int | float)
 
     return False
+
+
+def colormap_to_list(
+    name: str,
+    num: int | None = None,
+    rollover: bool = True,
+    norm_vmin: int = 0,
+) -> list[tuple[float, ...]]:
+    """Generate list of color tuples from cmap name."""
+    assert is_colormap(name)
+
+    cmap = colormaps.get_cmap(name)
+
+    max_iter = cmap.N
+
+    if num is not None:
+        max_iter = num
+
+    norm = Normalize(vmin=norm_vmin, vmax=cmap.N)
+
+    if cmap.N == 256:
+        # Norm sequencial colors
+        norm = Normalize(vmin=norm_vmin, vmax=max_iter % cmap.N)
+
+    if rollover is True:
+        return [tuple(float(c) for c in cmap(norm(i % cmap.N))[:3]) for i in range(max_iter)]
+    return [tuple(float(c) for c in cmap(norm(i))[:3]) for i in range(max_iter)]
