@@ -7,7 +7,7 @@ from matplotlib import colormaps
 from matplotlib.axes import Axes
 from matplotlib.colors import Colormap, ListedColormap
 
-from ._types import AcceptedColors
+from ._types import AcceptedColors, ColorTuple
 
 
 def _clean_axis(
@@ -116,7 +116,10 @@ def isinstance_list_of(object: Any, dtype: type | UnionType) -> bool:
     return False
 
 
-def get_luminance(color: tuple[float, float, float], color_range_max: Literal[1, 255] = 1) -> float:
+def get_luminance(
+    color: ColorTuple,
+    color_range_max: Literal[1, 255] = 1,
+) -> float:
     """Get luminance of color."""
     if color_range_max == 255:
         return (0.2126 * color[0]) / 255 + (0.7152 * color[1]) / 255 + (0.0722 * color[2]) / 255
@@ -127,7 +130,9 @@ def get_luminance(color: tuple[float, float, float], color_range_max: Literal[1,
 
 
 def is_light_color(
-    color: tuple[float, float, float], color_range_max: Literal[1, 255] = 1, cutoff: float = 0.5
+    color: ColorTuple,
+    color_range_max: Literal[1, 255] = 1,
+    cutoff: float = 0.5,
 ) -> bool:
     """Check if color is light."""
     return get_luminance(color=color, color_range_max=color_range_max) > cutoff
