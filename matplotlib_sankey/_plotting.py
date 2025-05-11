@@ -8,7 +8,7 @@ from matplotlib.ticker import FixedLocator
 from matplotlib.colors import Colormap
 
 from ._types import CurveType, ColorTuple
-from ._utils import _clean_axis
+from ._utils import _clean_axis, is_light_color
 from ._patches import patch_curve3, patch_curve4, patch_line
 from ._colors import colormap_to_list, is_color, is_colormap, unify_color
 
@@ -37,6 +37,7 @@ def sankey(
     legend_labels: list[str] | None = None,
     column_labels: list[str] | None = None,
     annotate_columns_font_kwargs: dict[str, Any] | None = None,
+    annotate_columns_font_color: Literal["auto"] | ColorTuple | str = "auto",
 ) -> Axes:
     """Sankey plot.
 
@@ -58,6 +59,7 @@ def sankey(
         legend_labels (list[str] | None, optional): Labels to display in legend. Defaults to `None`.
         column_labels (list[str] | None, optional): Labels for columns. Defaults to `None`.
         annotate_columns_font_kwargs (dict[str, Any] | None, optional): Extra arguments for column `ax.text` method of column annotation. Defaults to `None`.
+        annotate_columns_font_color (Literal["auto"] | ColorTuple | str, optional): Color of column annotation text. Defaults to `"auto"`, thereby automatically selectes text color based on background color.
 
     Returns:
         Matplotlib axes instance.
@@ -142,8 +144,6 @@ def sankey(
 
         color_matrix.append(new_column)
 
-    # print(color_matrix)
-
     # Plot rectangles
     column_rects: list[dict[int | str, tuple[float, float, float, float]]] = [{} for _ in range(ncols)]
     rect_num = 0
@@ -165,6 +165,8 @@ def sankey(
 
             column_prev_weight += weights * spacing_scale_factor
 
+            rect_color = color_matrix[frame_index][column_index]
+
             rect = Rectangle(
                 xy=(
                     rect_x,
@@ -172,8 +174,7 @@ def sankey(
                 ),
                 width=rel_column_width,
                 height=rect_height,
-                # color=cmap(rect_num),
-                color=color_matrix[frame_index][column_index],
+                color=rect_color,
                 zorder=1,
                 lw=0,
             )
@@ -208,6 +209,15 @@ def sankey(
                         annotate_columns_font_kwargs["ha"] = "center"
                     if "va" not in annotate_columns_font_kwargs:
                         annotate_columns_font_kwargs["va"] = "center"
+
+                if annotate_columns_font_color == "auto":
+                    # Automatially change text color if background color is light or dark
+                    if is_light_color(rect_color, color_range_max=1, cutoff=0.5):
+                        annotate_columns_font_kwargs["color"] = "black"
+                    else:
+                        annotate_columns_font_kwargs["color"] = "white"
+                else:
+                    annotate_columns_font_kwargs["color"] = annotate_columns_font_color
 
                 ax.text(
                     x=rect_x + (rel_column_width / 2),

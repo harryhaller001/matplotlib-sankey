@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, Literal
 from types import UnionType
 
 import numpy as np
@@ -114,3 +114,20 @@ def isinstance_list_of(object: Any, dtype: type | UnionType) -> bool:
     if isinstance(object, list):
         return all(isinstance(x, dtype) for x in object)
     return False
+
+
+def get_luminance(color: tuple[float, float, float], color_range_max: Literal[1, 255] = 1) -> float:
+    """Get luminance of color."""
+    if color_range_max == 255:
+        return (0.2126 * color[0]) / 255 + (0.7152 * color[1]) / 255 + (0.0722 * color[2]) / 255
+    elif color_range_max == 1:
+        return (0.2126 * color[0]) + (0.7152 * color[1]) + (0.0722 * color[2])
+    else:
+        raise ValueError()
+
+
+def is_light_color(
+    color: tuple[float, float, float], color_range_max: Literal[1, 255] = 1, cutoff: float = 0.5
+) -> bool:
+    """Check if color is light."""
+    return get_luminance(color=color, color_range_max=color_range_max) > cutoff

@@ -6,6 +6,6 @@ authors:
     - family-names: "Krebs"
       given-names: "Christian F."
 title: "matplotlib-sankey"
-version: 0.2.1
-date-released: 2025-04-27
+version: 0.3.0
+date-released: 2025-05-11
 url: "https://github.com/harryhaller001/matplotlib-sankey"
