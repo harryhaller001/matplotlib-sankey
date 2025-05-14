@@ -112,37 +112,54 @@ def sankey(
     total_rects: int = sum([len(col.keys()) for col in column_weights])
 
     # Generate 2d matrix to assign color to each rectangle per column
-    # cmap = _generate_cmap(cmap, total_rects)
-
     color_matrix: list[list[ColorTuple]] = []
+    new_column: list[ColorTuple]
+    column_rect_counts = [len(column_weights[col_index].keys()) for col_index in range(len(column_weights))]
 
-    iterations = 0
-    for col_index in range(len(column_weights)):
-        new_column: list[ColorTuple] = []
-        for _ in range(len(column_weights[col_index].keys())):
-            if is_color(color):
-                # Fill all fields with this color
+    if is_color(color):
+        # Fill all fields with this color
+        for col_index in range(len(column_rect_counts)):
+            new_column = []
+            for _ in range(column_rect_counts[col_index]):
                 new_column.append(unify_color(color))
-            elif isinstance(color, str):
-                if is_colormap(color):
-                    # Fill all fields according to colormap
+            color_matrix.append(new_column)
+    elif isinstance(color, str):
+        if is_colormap(color):
+            # Fill all fields according to colormap
+            iterations = 0
+            for col_index in range(len(column_rect_counts)):
+                new_column = []
+                for _ in range(column_rect_counts[col_index]):
                     new_column.append(colormap_to_list(name=color, num=total_rects, rollover=True)[iterations])
-                else:
-                    raise ValueError(
-                        "If cmap argument is a string, please provide color name, hex code or name of colormap."
+                    iterations += 1
+
+                color_matrix.append(new_column)
+
+        else:
+            raise ValueError("If cmap argument is a string, please provide color name, hex code or name of colormap.")
+
+    elif isinstance(color, list | tuple | set):
+        assert len(color) == ncols
+        # process column wise definition of color
+        for col_index in range(len(column_rect_counts)):
+            new_column = []
+
+            if is_colormap(color[col_index]):
+                for rect_index in range(column_rect_counts[col_index]):
+                    new_column.append(
+                        colormap_to_list(
+                            name=color[col_index],
+                            num=len(column_weights[col_index].keys()),
+                            rollover=True,
+                        )[rect_index]
                     )
-            elif isinstance(color, list | tuple | set):
-                # Check if size of colormap is correct
-                assert len(color) == len(column_weights)
+            elif is_color(color[col_index]):
+                for _ in range(column_rect_counts[col_index]):
+                    new_column.append(unify_color(color[col_index]))
+            color_matrix.append(new_column)
 
-                # TODO: process column wise definition of color
-
-            else:
-                raise ValueError("Value of cmap not supported.")
-
-            iterations += 1
-
-        color_matrix.append(new_column)
+    else:
+        raise ValueError("Value of cmap not supported.")
 
     # Plot rectangles
     column_rects: list[dict[int | str, tuple[float, float, float, float]]] = [{} for _ in range(ncols)]
