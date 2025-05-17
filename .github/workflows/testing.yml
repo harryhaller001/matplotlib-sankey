@@ -42,7 +42,9 @@ jobs:
                     -   os: ubuntu-24.04
                         python: "3.12"
                     -   os: ubuntu-24.04
-                        python: "3.12"
+                        python: "3.13"
+                    -   os: ubuntu-24.04
+                        python: "3.13"
                         pip-flags: "--pre"
                         name: PRE-RELEASE DEPENDENCIES
 

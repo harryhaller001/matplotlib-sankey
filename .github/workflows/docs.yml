@@ -61,7 +61,8 @@ jobs:
         needs: docs
 
         permissions:
-            pages: write      # to deploy to Pages
+            # required to deploy to Pages
+            pages: write
             id-token: write
 
         environment:
