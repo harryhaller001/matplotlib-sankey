@@ -20,6 +20,9 @@ matplotlib-sankey
 .. image:: https://img.shields.io/pypi/pyversions/matplotlib-sankey
    :alt: PyPI - Python Version
 
+.. image:: https://zenodo.org/badge/893904012.svg
+    :target: https://doi.org/10.5281/zenodo.15420062
+
 |
 
 Generate sankey plot with matplotlib. For an example, see :doc:`example`.

@@ -4,6 +4,7 @@
 [![Version](https://img.shields.io/pypi/v/matplotlib-sankey)](https://pypi.org/project/matplotlib-sankey/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matplotlib-sankey)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/harryhaller001/matplotlib-sankey/testing.yml)
+[![DOI](https://zenodo.org/badge/893904012.svg)](https://doi.org/10.5281/zenodo.15420062)
 
 [Documentation](https://harryhaller001.github.io/matplotlib-sankey/) | [PyPI](https://pypi.org/project/matplotlib-sankey/) | [Github repository](https://github.com/harryhaller001/matplotlib-sankey) | [Codecov](https://codecov.io/gh/harryhaller001/matplotlib-sankey)
 
