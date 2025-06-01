@@ -144,7 +144,7 @@ def sankey(
         for col_index in range(len(column_rect_counts)):
             new_column = []
 
-            if is_colormap(color[col_index]):
+            if isinstance(color[col_index], str) and is_colormap(color[col_index]):
                 for rect_index in range(column_rect_counts[col_index]):
                     new_column.append(
                         colormap_to_list(
@@ -156,6 +156,15 @@ def sankey(
             elif is_color(color[col_index]):
                 for _ in range(column_rect_counts[col_index]):
                     new_column.append(unify_color(color[col_index]))
+
+            elif isinstance(color[col_index], list | tuple | set):
+                # List of list -> individual definition of column rect color
+                assert all(is_color(c) for c in color[col_index]), "All items must be a color."
+                assert len(color[col_index]) == column_rect_counts[col_index]
+
+                for rect_index in range(column_rect_counts[col_index]):
+                    new_column.append(unify_color(color[col_index][rect_index]))
+
             color_matrix.append(new_column)
 
     else:
