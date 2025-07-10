@@ -39,7 +39,7 @@ help: ## This help.
 install: ## install all python dependencies
 
 # Install dev dependencies
-	@$(PIP_OPT) install -e ".[test,docs]" --upgrade
+	@$(PIP_OPT) install -e ".[test,docs]"
 
 # Install precommit hook
 	@$(PRE_COMMIT_OPT) install
@@ -49,6 +49,11 @@ freeze: ## Freeze package dependencies
 	@$(PYTHON_OPT) --version > .python-version
 	@$(PIP_OPT) freeze --exclude $(PACKAGE_NAME) > requirements.txt
 
+
+
+.PHONY : upgrade
+upgrade: ## upgrade python dependencies
+	$(PIP_OPT) install matplotlib numpy pytest coverage mypy ruff flit pre-commit setuptools twine --upgrade
 
 
 
