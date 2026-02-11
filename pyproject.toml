@@ -4,7 +4,7 @@ requires = [ "uv-build>=0.9.28,<0.10" ]
 
 [project]
 name = "matplotlib-sankey"
-version = "0.2.0"
+version = "0.3.1"
 description = "Create Sankey diagrams with Matplotlib."
 readme = { file = "README.md", content-type = "text/markdown" }
 license = "MIT"
