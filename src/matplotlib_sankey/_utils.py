@@ -5,7 +5,7 @@ from typing import Any, Literal
 import numpy as np
 from matplotlib import colormaps
 from matplotlib.axes import Axes
-from matplotlib.colors import Colormap, ListedColormap
+from matplotlib.colors import Colormap, ListedColormap, to_rgb
 
 from ._types import AcceptedColors, ColorTuple
 
@@ -51,7 +51,12 @@ def _generate_cmap(value: AcceptedColors, nrows: int) -> Colormap:
         return _convert_sequential_cmap_to_listed(colormaps.get_cmap(value))
 
     elif isinstance(value, Sequence):
-        return ListedColormap(value)
+        # Convert color names/strings to RGB tuples for ListedColormap
+        rgb_colors: list[tuple[float, float, float]] = [
+            to_rgb(c) if isinstance(c, str) else tuple(c)  # type: ignore[arg-type]
+            for c in value
+        ]
+        return ListedColormap(rgb_colors)
 
     elif isinstance(value, Colormap):
         return _convert_sequential_cmap_to_listed(value)
