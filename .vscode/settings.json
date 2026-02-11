@@ -9,50 +9,46 @@
     "editor.insertSpaces": true,
     "editor.detectIndentation": true,
     "editor.formatOnSave": true,
+    "git.ignoreLimitWarning": true,
+    "files.exclude": {
+        "**/.DS_Store": true,
+        "**/.mypy_cache": true,
+        "**/.ruff_cache": true,
+        "**/.pytest_cache": true,
+        "**/.coverage": true,
+        "**/coverage": true,
+        "**/**__pycache__**": true,
+        "**/*.pyc": true,
+    },
+    "files.watcherExclude": {
+        "**/node_modules": true,
+        "**/.ruff_cache": true,
+        "**/.pytest_cache": true
+    },
+    "files.insertFinalNewline": true,
     "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "off",
+    "python.defaultInterpreterPath": "./.venv/bin/python",
     "[python]": {
         "editor.formatOnPaste": false,
         "editor.formatOnSaveMode": "file",
-        "editor.defaultFormatter": "charliermarsh.ruff"
+        "editor.rulers": [
+            120
+        ],
+        "editor.defaultFormatter": "charliermarsh.ruff",
     },
-    "python.analysis.extraPaths": [
-        "matplotlib_sankey",
-        "tests",
-        "examples",
-        "docs",
+    "python.testing.pytestArgs": [
+        "tests"
     ],
-    "python.analysis.exclude": [
-        "**/venv/**",
-        "**/__pycache__/**"
-    ],
-    "python.defaultInterpreterPath": "venv/bin/python",
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "files.insertFinalNewline": true,
     "trailing-spaces.trimOnSave": true,
     "notebook.formatOnSave.enabled": true,
     "notebook.cellFocusIndicator": "gutter",
     "notebook.lineNumbers": "on",
-    "files.watcherExclude": {
-        "**/venv/**": true,
-        "**/node_modules": true,
-        "**/.ruff_cache": true,
-        "**/.mypy_cache": true,
-        "**/.pytest_cache": true
-    },
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/node_modules": true,
-        "**/.mypy_cache": true,
-        "**/.ruff_cache": true,
-        "**/.pytest_cache": true,
-        "**/__pycache__/**": true,
-        // "**/venv/**": true,
-    },
+    "evenBetterToml.formatter.compactArrays": false,
+    "evenBetterToml.formatter.compactInlineTables": false,
+    "evenBetterToml.formatter.compactEntries": false,
+    "evenBetterToml.formatter.indentString": "    ",
+    "evenBetterToml.formatter.columnWidth": 120,
 }

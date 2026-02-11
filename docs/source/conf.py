@@ -5,7 +5,7 @@ from pathlib import Path
 
 DOCS_DIR = Path(__file__).parent
 PACKAGE_NAME = "matplotlib-sankey"
-PACKAGE_DIR = os.path.abspath("../../matplotlib_sankey")
+PACKAGE_DIR = os.path.abspath("../../src/matplotlib_sankey")
 GITHUB_USER = "harryhaller001"
 GITHUB_REPO = "matplotlib-sankey"
 
@@ -58,7 +58,7 @@ myst_enable_extensions = [
 ]
 
 # Mapping for intersphinx extension
-intersphinx_mapping = dict(  # noqa: C408
+intersphinx_mapping = dict(
     numpy=("https://numpy.org/doc/stable/", None),
     matplotlib=("https://matplotlib.org/stable", None),
 )
@@ -109,7 +109,7 @@ napoleon_attr_annotations = True
 
 # Configurate sphinx rtd theme
 html_theme = "sphinx_book_theme"
-html_theme_options = dict(  # noqa: C408
+html_theme_options = dict(
     repository_url=f"https://github.com/{GITHUB_USER}/{GITHUB_REPO}",
     repository_branch="main",
     use_download_button=True,
@@ -119,7 +119,7 @@ html_theme_options = dict(  # noqa: C408
 )
 html_static_path = ["_static"]
 html_show_sphinx = False
-html_context = dict(  # noqa: C408
+html_context = dict(
     display_github=True,
     github_user=GITHUB_USER,
     github_repo=GITHUB_REPO,

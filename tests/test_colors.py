@@ -1,4 +1,4 @@
-from matplotlib_sankey._colors import is_color, is_colormap, colormap_to_list, is_hex_color, unify_color
+from matplotlib_sankey._colors import colormap_to_list, is_color, is_colormap, is_hex_color, unify_color
 
 
 def test_color_utils() -> None:

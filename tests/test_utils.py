@@ -1,7 +1,7 @@
 from matplotlib import colormaps
 from matplotlib.colors import Colormap
 
-from matplotlib_sankey._utils import _generate_cmap, from_matrix, isinstance_list_of, is_light_color
+from matplotlib_sankey._utils import _generate_cmap, from_matrix, is_light_color, isinstance_list_of
 
 
 def test_utils_cmap() -> None:
