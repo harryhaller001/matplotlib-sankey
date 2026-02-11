@@ -7,7 +7,7 @@ from matplotlib import colormaps
 from matplotlib.axes import Axes
 from matplotlib.colors import Colormap, ListedColormap, to_rgb
 
-from ._types import AcceptedColors, ColorTuple
+from matplotlib_sankey._types import AcceptedColors, ColorTuple
 
 
 def _clean_axis(

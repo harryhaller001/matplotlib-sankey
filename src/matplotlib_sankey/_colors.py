@@ -4,8 +4,8 @@ from typing import Any
 from matplotlib import colormaps
 from matplotlib.colors import Normalize, get_named_colors_mapping, to_rgb
 
-from ._types import ColorTuple
-from ._utils import isinstance_list_of
+from matplotlib_sankey._types import ColorTuple
+from matplotlib_sankey._utils import isinstance_list_of
 
 
 def is_colormap(name: str) -> bool:

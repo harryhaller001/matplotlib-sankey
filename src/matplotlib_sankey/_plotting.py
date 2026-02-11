@@ -7,10 +7,10 @@ from matplotlib.colors import Colormap
 from matplotlib.patches import Patch, PathPatch, Rectangle
 from matplotlib.ticker import FixedLocator
 
-from ._colors import colormap_to_list, is_color, is_colormap, unify_color
-from ._patches import patch_curve3, patch_curve4, patch_line
-from ._types import ColorTuple, CurveType
-from ._utils import _clean_axis, is_light_color
+from matplotlib_sankey._colors import colormap_to_list, is_color, is_colormap, unify_color
+from matplotlib_sankey._patches import patch_curve3, patch_curve4, patch_line
+from matplotlib_sankey._types import ColorTuple, CurveType
+from matplotlib_sankey._utils import _clean_axis, is_light_color
 
 
 def sankey(
@@ -41,6 +41,7 @@ def sankey(
     column_labels: list[str] | None = None,
     annotate_columns_font_kwargs: dict[str, Any] | None = None,
     annotate_columns_font_color: Literal["auto"] | ColorTuple | str = "auto",
+    column_item_totals: list[dict[int | str, float | int]] | None = None,
 ) -> Axes:
     """Sankey plot.
 
@@ -63,6 +64,7 @@ def sankey(
         column_labels (list[str] | None, optional): Labels for columns. Defaults to `None`.
         annotate_columns_font_kwargs (dict[str, Any] | None, optional): Extra arguments for column `ax.text` method of column annotation. Defaults to `None`.
         annotate_columns_font_color (Literal["auto"] | ColorTuple | str, optional): Color of column annotation text. Defaults to `"auto"`, thereby automatically selectes text color based on background color.
+        column_item_totals (list[dict[int | str, float | int]] | None, optional): Total values for each column item. If provided, column items are sized based on these totals instead of the sum of ribbon weights. Ribbons are adjusted proportionally within the column items. Defaults to `None`.
 
     Returns:
         Matplotlib axes instance.
@@ -110,6 +112,24 @@ def sankey(
                     column_weights[frame_index + 1][target_index] = (
                         column_weights[frame_index + 1].get(target_index, 0) + weight
                     )
+
+    # Validate column_item_totals if provided
+    if column_item_totals is not None:
+        assert len(column_item_totals) == ncols, f"column_item_totals must have {ncols} entries, one for each column."
+        for col_index in range(ncols):
+            for item_key in column_weights[col_index].keys():
+                if item_key not in column_item_totals[col_index]:
+                    raise ValueError(
+                        f"Column {col_index}, item '{item_key}' has ribbons but no total value provided in column_item_totals."
+                    )
+                if column_item_totals[col_index][item_key] < column_weights[col_index][item_key]:
+                    raise ValueError(
+                        f"Column {col_index}, item '{item_key}': total value {column_item_totals[col_index][item_key]} "
+                        f"is less than sum of ribbon weights {column_weights[col_index][item_key]}."
+                    )
+
+    # Use totals for rectangle sizing if provided, otherwise use calculated weights
+    column_display_weights = column_item_totals if column_item_totals is not None else column_weights
 
     # Total number of column rects
     total_rects: int = sum([len(col.keys()) for col in column_weights])
@@ -184,14 +204,14 @@ def sankey(
     legend_handles: list[tuple[str, ColorTuple]] = []
 
     for frame_index in range(ncols):
-        column_total_weight = sum(column_weights[frame_index].values())
+        column_total_weight = sum(column_display_weights[frame_index].values())
         column_prev_weight = 0.0
 
-        column_n_spacing = len(column_weights[frame_index].values()) - 1
+        column_n_spacing = len(column_display_weights[frame_index].values()) - 1
 
         spacing_scale_factor = 1 - (spacing * column_n_spacing)
 
-        for column_index, (column_key, weights) in enumerate(column_weights[frame_index].items()):
+        for column_index, (column_key, weights) in enumerate(column_display_weights[frame_index].items()):
             rect_x = frame_index - (rel_column_width / 2)
             rect_y = column_prev_weight / column_total_weight + (column_index * spacing)
             rect_height = (weights * spacing_scale_factor) / column_total_weight
@@ -288,25 +308,23 @@ def sankey(
             ribbon_offset: float = 0.0
 
             for target_index, ribbon_weight in column_targets.items():
-                # Start coords
-                y1_start = rect_y + +(rect_height * (ribbon_offset / sum(column_targets.values())))
-                y2_end = rect_y + (rect_height * ((ribbon_offset + ribbon_weight) / sum(column_targets.values())))
+                # Start coords - use actual ribbon weights for positioning within source rectangle
+                source_item_total = column_display_weights[frame_index][column_key]
+                y1_start = rect_y + (rect_height * (ribbon_offset / source_item_total))
+                y2_end = rect_y + (rect_height * ((ribbon_offset + ribbon_weight) / source_item_total))
 
                 ribbon_offset += ribbon_weight
 
                 _, target_rect_y, _, target_rect_height = column_rects[frame_index + 1][target_index]
 
-                # End coords
+                # End coords - use actual ribbon weights for positioning within target rectangle
+                target_item_total = column_display_weights[frame_index + 1][target_index]
                 y1_end = target_rect_y + (
-                    target_rect_height
-                    * (target_ribbon_offset.get(target_index, 0) / column_weights[frame_index + 1][target_index])
+                    target_rect_height * (target_ribbon_offset.get(target_index, 0) / target_item_total)
                 )
                 y2_start = target_rect_y + (
                     target_rect_height
-                    * (
-                        (ribbon_weight + target_ribbon_offset.get(target_index, 0))
-                        / column_weights[frame_index + 1][target_index]
-                    )
+                    * ((ribbon_weight + target_ribbon_offset.get(target_index, 0)) / target_item_total)
                 )
 
                 target_ribbon_offset[target_index] = target_ribbon_offset.get(target_index, 0) + ribbon_weight
