@@ -27,7 +27,7 @@ jobs:
         -   name: Install docs dependencies
             run: |
                 sudo apt-get install -y pandoc
-                uv sync --locked --extras docs
+                uv sync --locked --extra docs
 
 
         # Test and build the docs
