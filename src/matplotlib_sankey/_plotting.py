@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Any, Literal, cast
 
 import matplotlib.pyplot as plt
@@ -14,7 +14,7 @@ from matplotlib_sankey._utils import _clean_axis, is_light_color
 
 
 def sankey(
-    data: list[list[tuple[int | str, int | str, float | int]]],
+    data: Sequence[Sequence[tuple[int | str, int | str, float | int]]],
     figsize: tuple[int, int] | None = None,
     frameon: bool = False,
     ax: Axes | None = None,
@@ -33,7 +33,7 @@ def sankey(
     ] = "tab10",
     curve_type: CurveType = "curve4",
     ribbon_alpha: float = 0.2,
-    ribbon_color: str = "black",
+    ribbon_color: str | ColorTuple = "black",
     title: str | None = None,
     show: bool = True,
     show_legend: bool = False,
@@ -41,7 +41,7 @@ def sankey(
     column_labels: list[str] | None = None,
     annotate_columns_font_kwargs: dict[str, Any] | None = None,
     annotate_columns_font_color: Literal["auto"] | ColorTuple | str = "auto",
-    column_item_totals: list[dict[int | str, float | int]] | None = None,
+    column_item_totals: Sequence[Mapping[Any, float | int]] | None = None,
 ) -> Axes:
     """Sankey plot.
 

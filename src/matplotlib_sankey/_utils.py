@@ -68,7 +68,7 @@ def from_matrix(
     mtx: Sequence[Sequence[int | float]],
     source_indicies: list[int | str] | None = None,
     target_indicies: list[int | str] | None = None,
-) -> Sequence[tuple[int | str, int | str, float | int]]:
+) -> list[tuple[int | str, int | str, float | int]]:
     """Convert weight matrix to tuple of source, target and weight.
 
     Args:

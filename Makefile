@@ -3,10 +3,6 @@
 
 BASE_DIR		= ${PWD}
 
-PACKAGE_NAME	= matplotlib-sankey
-
-PACKAGE_DIR		= $(BASE_DIR)/src/matplotlib_sankey
-TEST_DIR		= $(BASE_DIR)/tests
 DOCS_DIR		= $(BASE_DIR)/docs/source
 
 UV_OPT			= uv
@@ -64,14 +60,12 @@ build: # Twine package upload and checks
 
 .PHONY : format
 format: ## Lint and format code with flake8 and black
-	@$(RUFF_OPT) format $(PACKAGE_DIR) $(TEST_DIR) $(DOCS_DIR)/conf.py
-	@$(RUFF_OPT) check --fix $(PACKAGE_DIR) $(TEST_DIR) $(DOCS_DIR)/conf.py
+	@$(RUFF_OPT) format
+	@$(RUFF_OPT) check --fix
 
 
 .PHONY: testing
 testing: ## Unittest of package
-# @$(TEST_OPT) --show-capture=log
-
 	@$(COVERAGE_OPT) run -m pytest
 	@$(COVERAGE_OPT) html
 
@@ -81,26 +75,7 @@ testing: ## Unittest of package
 
 .PHONY: typing
 typing: ## Run static code analysis
-	@$(TY_OPT) check $(PACKAGE_DIR) $(TEST_DIR) $(DOCS_DIR)/conf.py
-
-
-
-.PHONY: clean
-clean: ## Clean all build and caching directories
-
-# Remove package build folders
-	@rm -rf ./build
-	@rm -rf ./dist
-	@rm -rf ./$(PACKAGE_NAME).egg-info
-
-# Remove ty and pytest caching folders
-	@rm -rf ./.pytest_cache
-	@rm -rf ./coverage
-	@rm -f .coverage
-
-# Remove build folders for docs
-	@rm -rf ./docs/_build
-	@rm -rf ./docs/dist
+	@$(TY_OPT) check
 
 
 
@@ -116,9 +91,7 @@ docs: ## Build sphinx docs
 
 
 
-
-
-# Run all checks (always before committing!)
+# Run all checks
 .PHONY: check
 check: install format typing testing build docs precommit ## Full check of package
 
@@ -126,7 +99,6 @@ check: install format typing testing build docs precommit ## Full check of packa
 
 .PHONY : precommit
 precommit: ## Run precommit file
-#	@pre-commit run --all-files --verbose
 	@$(PRE_COMMIT_OPT) run --all-files
 
 

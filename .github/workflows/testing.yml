@@ -2,13 +2,9 @@
 name: Testing package
 
 on:
-    # Option for trigger worflow manually
     workflow_dispatch:
-
     push:
         branches: [main]
-
-    # Run action when pull request is opened
     pull_request:
         branches: [main]
         types:  [opened, reopened, synchronize]
@@ -20,9 +16,7 @@ concurrency:
 
 
 
-# Jobs
 jobs:
-
     test:
         runs-on: ${{ matrix.os }}
 
@@ -43,10 +37,6 @@ jobs:
                         python: "3.13"
                     -   os: ubuntu-24.04
                         python: "3.14"
-                    -   os: ubuntu-24.04
-                        python: "3.14"
-                        pip-flags: "--pre"
-                        name: PRE-RELEASE DEPENDENCIES
 
         name: ${{ matrix.name }} Python ${{ matrix.python }}
 
@@ -56,13 +46,6 @@ jobs:
 
         steps:
             -   uses: actions/checkout@v6
-            # -   name: Set up Python ${{ matrix.python }}
-                # uses: actions/setup-python@v6
-                # with:
-                #     python-version: ${{ matrix.python }}
-                #     cache: "pip"
-                #     cache-dependency-path: "**/pyproject.toml"
-
             -   name: Install uv and set the Python version
                 uses: astral-sh/setup-uv@v7
                 with:
@@ -78,37 +61,16 @@ jobs:
             # Linting package
             -   name: Format and Linting
                 run: |
-                    uv run ruff check ./src/matplotlib_sankey ./tests/*.py ./docs/*.py
+                    uv run ruff check
 
 
             # Install package from setup.py and static code analysis
             -   name: Static code analysis
                 run: |
-                    uv run ty check --python-version=${{ matrix.python }} ./src/matplotlib_sankey ./docs/*.py ./tests
+                    uv run ty check --python-version=${{ matrix.python }}
 
 
             # Run unittest on installed package
             -   name: Unit testing with pytest
                 run: |
                     uv run pytest --show-capture=log
-
-
-            # # Run unittest on installed package
-            # -   name: Unit testing with pytest
-            #     env:
-            #         MPLBACKEND: agg
-            #         PLATFORM: ${{ matrix.os }}
-            #         DISPLAY: :42
-            #     run: |
-            #         uv run coverage run -m pytest -v --color=yes
-
-            # # generation of coverage report
-            # -   name: Report coverage
-            #     run: |
-            #         uv run coverage report
-
-            # # Upload to codecov
-            # -   name: Upload coverage reports to Codecov
-            #     uses: codecov/codecov-action@v5
-            #     with:
-            #         token: ${{ secrets.CODECOV_TOKEN }}
