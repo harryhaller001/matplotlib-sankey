@@ -6,7 +6,7 @@ from matplotlib_sankey import sankey
 
 def test_sankey_simple_plot():
     """Testing simple sankey plot."""
-    data = [
+    data: list[list[tuple[int | str, int | str, int | float]]] = [
         [(0, 2, 20), (0, 1, 10), (3, 4, 15), (3, 2, 10), (5, 1, 5), (5, 2, 50)],
         [(2, 6, 40), (1, 6, 15), (2, 7, 40), (4, 6, 15)],
         [(7, 8, 5), (7, 9, 5), (7, 10, 20), (7, 11, 10), (6, 11, 55), (6, 8, 15)],
@@ -27,13 +27,13 @@ def test_sankey_simple_plot():
 
 def test_sankey_column_item_totals():
     """Testing sankey plot with column_item_totals."""
-    data = [
+    data: list[list[tuple[int | str, int | str, int | float]]] = [
         [(0, 1, 30), (0, 2, 20), (3, 1, 15), (3, 2, 25)],
         [(1, 4, 40), (2, 4, 30), (2, 5, 15)],
     ]
 
     # Test with valid totals (larger than ribbon sums)
-    column_item_totals = [
+    column_item_totals: list[dict[int | str, int | float]] = [
         {0: 60, 3: 50},  # Column 0
         {1: 60, 2: 60},  # Column 1
         {4: 90, 5: 25},  # Column 2
@@ -48,7 +48,7 @@ def test_sankey_column_item_totals():
     assert ax is not None
 
     # Test with totals equal to ribbon sums (should work)
-    column_item_totals_equal = [
+    column_item_totals_equal: list[dict[int | str, int | float]] = [
         {0: 50, 3: 40},
         {1: 45, 2: 45},
         {4: 70, 5: 15},
@@ -64,7 +64,7 @@ def test_sankey_column_item_totals():
 
 def test_sankey_column_item_totals_validation():
     """Testing validation of column_item_totals parameter."""
-    data = [
+    data: list[list[tuple[int | str, int | str, int | float]]] = [
         [(0, 1, 30), (0, 2, 20)],
     ]
 
