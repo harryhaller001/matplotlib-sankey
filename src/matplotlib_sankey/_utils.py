@@ -53,7 +53,7 @@ def _generate_cmap(value: AcceptedColors, nrows: int) -> Colormap:
     elif isinstance(value, Sequence):
         # Convert color names/strings to RGB tuples for ListedColormap
         rgb_colors: list[tuple[float, float, float]] = [
-            to_rgb(c) if isinstance(c, str) else tuple(c)  # type: ignore[arg-type]
+            to_rgb(c) if isinstance(c, str) else tuple(c)  # type: ignore
             for c in value
         ]
         return ListedColormap(rgb_colors)

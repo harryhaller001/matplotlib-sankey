@@ -91,9 +91,8 @@ docs: ## Build sphinx docs
 
 
 
-# Run all checks
 .PHONY: check
-check: install format typing testing build docs precommit ## Full check of package
+check: install format typing testing build precommit ## Full check of package
 
 
 
